@@ -14,7 +14,8 @@
 			})
 			.state('products', {
 				url: '/products',
-				template: '<h1>Products</h1>'
+				controller: 'ProductList',
+				templateUrl: 'views/product-list.html'
 			})
 			.state('about', {
 				url: '/about',
