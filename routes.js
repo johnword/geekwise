@@ -17,6 +17,11 @@
 				controller: 'ProductList',
 				templateUrl: 'views/product-list.html'
 			})
+			.state('product', {
+				url: '/product/:id',
+				controller: 'ProductDetail',
+				templateUrl: 'views/product-detail.html'
+			})
 			.state('about', {
 				url: '/about',
 				template: '<h1>About</h1>'
