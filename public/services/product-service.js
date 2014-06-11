@@ -18,6 +18,10 @@
 			getProductFilters: function() {
 				//Return the promise
 				return $http.get('assets/json/product-filters.json');
+			},
+			getFeaturedProducts: function() {
+				//Return the promise
+				return $http.get('api/products/featured');
 			}
 		}
 

@@ -27,6 +27,14 @@ module.exports = function(app) {
 			res.send(products);
 		});
  	})
+	// Added a products/featured route to the routes.js and returned all products where isFeatured is true
+ 	app.get('api/products/featured', function(req, res) {
+		mongoose.model('Product').isFeatured.true.find(function(err, products) {
+			if(err)
+				res.send(err);
+			res.send(products);
+		});
+ 	})
 	// route to handle creating (app.post)
 	// route to handle delete (app.delete)
  

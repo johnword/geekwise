@@ -30,6 +30,11 @@
 			.state('contact', {
 				url: '/contact',
 				template: '<h1>Contact</h1>'
+			})
+			.state('cart', {
+			url: '/cart',
+			controller: 'CartController',
+			templateUrl: 'views/cart.html'
 			});
 
 	});

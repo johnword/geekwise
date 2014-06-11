@@ -17,8 +17,11 @@
         		if(product.isFeatured) {
 
                     $scope.featuredProducts.push(product);
+
                 }
         	});
 		});
+
+		ProductService.getFeaturedProducts();
 	});
 })(window.angular);
