@@ -1,7 +1,9 @@
 module.exports = function(app) {
  
-	// Require mongoose dependency
+	// Require dependencies
 	var mongoose = require('mongoose');
+	var passport = require('passport');
+
  
 	/* ======================= server routes ====================== */
 	// handle things like api calls
@@ -19,6 +21,7 @@ module.exports = function(app) {
 			res.send(product); // return all nerds in JSON format
 		});
 	});
+	
 	// products api route	
 	app.get('/api/products', function(req, res) {
 		mongoose.model('Product').find(function(err, products) {
@@ -27,6 +30,7 @@ module.exports = function(app) {
 			res.send(products);
 		});
  	})
+	
 	// Added a products/featured route to the routes.js and returned all products where isFeatured is true
  	app.get('api/products/featured', function(req, res) {
 		mongoose.model('Product').isFeatured.true.find(function(err, products) {
@@ -35,9 +39,32 @@ module.exports = function(app) {
 			res.send(products);
 		});
  	})
-	// route to handle creating (app.post)
-	// route to handle delete (app.delete)
+	
+	// logout API route
+	app.get('/api/logout', function(req, res, next) {
+		req.logout();
+		res.send(200);
+	});
  
+	// login API route
+	app.post('/api/login', passport.authenticate('local'), function(req, res) {
+		res.cookie('user', JSON.stringify(req.user));
+		res.send(req.user);
+	});
+ 
+	// signup API route
+	app.post('/api/signup', function(req, res, next) {
+		var User = mongoose.model('User');
+		var user = new User({
+			email: req.body.email,
+			password: req.body.password
+		});
+		user.save(function(err) {
+			if (err) return next(err);
+			res.send(200);
+		});
+	});
+
 	/* ========================= frontend routes ======================= */
 	// route to handle all angular requests
 	app.get('*', function(req, res) {

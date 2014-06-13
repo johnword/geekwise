@@ -1,15 +1,20 @@
 /* ======================= modules ======================== */
- 
-var express      = require('express');
-var app          = express();
-var mongoose     = require('mongoose');
-var uriUtil      = require('mongodb-uri');
-var path         = require('path');
-var fs           = require('fs');
-var favicon      = require('static-favicon');
-var logger       = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+
+
+var express       = require('express');
+var app           = express();
+var mongoose      = require('mongoose');
+var uriUtil       = require('mongodb-uri');
+var path          = require('path');
+var fs            = require('fs');
+var favicon       = require('static-favicon');
+var logger        = require('morgan');
+var cookieParser  = require('cookie-parser');
+var bodyParser 	  = require('body-parser');
+var passport      = require('passport');
+var session       = require('express-session');
+var LocalStrategy = require('passport-local').Strategy;
+var bcrypt        = require('bcrypt-nodejs');
  
 /* ===================== configuration ==================== */
  
@@ -43,7 +48,7 @@ var options = {
  * Mongoose's format.
  */
  
-var mongodbUri = 'mongodb://madmax:geekwise@ds045679.mongolab.com:45679/ironfist';
+var mongodbUri = 'mongodb://fred:barney@ds045679.mongolab.com:45679/ironfist';
 var mongooseUri = uriUtil.formatMongoose(mongodbUri);
 var conn = mongoose.connection;
  
@@ -58,12 +63,53 @@ app.use(logger('dev'));                                 // log every request to 
 app.use(bodyParser.json());                             // have the ability to simulate DELETE and PUT
 app.use(bodyParser.urlencoded());                       // have the ability to simulate DELETE and PUT
 app.use(cookieParser());                                // have the ability to parse cookies
+app.use(session({ secret: 'blackwidow straw' }));                       // Encryption key/salt
+app.use(passport.initialize());                                         // Initializes passport
+app.use(passport.session());                                            // Creates a passport session
 app.use(express.static(path.join(__dirname, 'public')));// set the static files location
+app.use(function(req, res, next) {
+	if (req.user) {
+		res.cookie('user', JSON.stringify(req.user));
+	}
+	next();
+});
 
 /* ============== MODELS ========================== */
 fs.readdirSync(__dirname + '/models').forEach(function(filename) {
 	if(~filename.indexOf('.js')) require(__dirname + '/models/' + filename)
 });
+
+/* ===================== PASSPORT ========================= */
+passport.serializeUser(function(user, done) {
+	done(null, user.id);
+});
+ 
+passport.deserializeUser(function(id, done) {
+	var User = mongoose.model('User');
+ 
+	User.findById(id, function(err, user) {
+		done(err, user);
+	});
+});
+ 
+passport.use(new LocalStrategy({ usernameField: 'email' }, function(email, password, done) {
+	var User = mongoose.model('User');
+ 
+	User.findOne({ email: email }, function(err, user) {
+		if (err) return done(err);
+		if (!user) return done(null, false);
+ 
+		function cb(err, isMatch) {
+			if (err) return done(err);
+			if (isMatch) return done(null, user);
+			return done(null, false);
+		}
+		bcrypt.compare(password, user.password, function(err, isMatch) {
+			if (err) return cb(err);
+			cb(null, isMatch);
+		});
+	});
+}));
  
 // routes ==================================================
 require('./routes.js')(app);                            // configure our routes, passing in app reference
