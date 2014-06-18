@@ -14,9 +14,9 @@
  
 	    $scope.removeItem = CartService.removeItem;
  
-	    $scope.cartSubtotal = fCartService.getCartSubtotal;
+	    $scope.getCartSubtotal = CartService.getCartSubtotal;
  
-	    $scope.cartTotal = CartService.getCartTotal;
+	    $scope.getCartTotal = CartService.getCartTotal;
  
     });
  
